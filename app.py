@@ -1,29 +1,39 @@
 import streamlit as st
 from groq import Groq
 
+st.set_page_config(page_title="Lovers Lake 💞", page_icon="💖")
 st.title("💞 Lovers Lake - Ayyan ❤️ Laiba")
+st.write("Laiba, you can talk to Ayyan’s AI anytime you miss him 💌")
 
-# Groq client initialization
+# --- Initialize Groq client using secret key ---
 client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
-st.write("Ask anything from Ayyan’s AI for Laiba 💌")
+# --- User input box ---
+user_input = st.text_input("💬 Laiba, ask something from Ayyan's AI:")
 
-# User input
-user_input = st.text_input("💬 Laiba, ask your question here:")
-
-if st.button("Send"):
+# --- When button is clicked ---
+if st.button("Send Message 💌"):
     if user_input.strip() == "":
-        st.warning("Please enter a message first!")
+        st.warning("Please write something first, Laiba! 💕")
     else:
         with st.spinner("Ayyan’s AI is thinking... 💭"):
             try:
+                # Use new supported model
                 response = client.chat.completions.create(
-                    model="llama3-8b-8192",  # stable & supported model
+                    model="llama-3.1-8b-instant",  # ✅ Active model
                     messages=[
-                        {"role": "system", "content": "You are Ayyan's AI version talking lovingly to Laiba. Respond sweetly, romantically, and kindly."},
-                        {"role": "user", "content": user_input}
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are Ayyan’s AI version, made lovingly for Laiba. "
+                                "Talk like Ayyan would — kind, romantic, funny, and caring. "
+                                "Always answer warmly and lovingly."
+                            ),
+                        },
+                        {"role": "user", "content": user_input},
                     ],
                 )
+
                 reply = response.choices[0].message.content
                 st.success("💖 Ayyan’s AI says:")
                 st.write(reply)
