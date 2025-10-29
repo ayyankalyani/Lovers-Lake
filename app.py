@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 # ========== YOUR API KEY ==========
-API_KEY = "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"  # 👈 Replace with your actual Groq API key (e.g. gsk_xxxxx)
+API_KEY = "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"  # 👈 Replace with your actual Groq API key (e.g. gsk_xxxxx)
 
 client = Groq(api_key=API_KEY)
 
@@ -21,7 +21,7 @@ st.markdown("""
             font-family: 'Poppins', sans-serif;
         }
         .main {
-            background-color: rgba(255, 255, 255, 0.85);
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 20px;
             padding: 25px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
@@ -73,9 +73,9 @@ if st.button("💖 Send Message"):
         st.session_state.chat_history.append({"role": "user", "content": user_input})
 
         try:
-            # Call Groq API
+            # ✅ UPDATED MODEL (works in 2025)
             response = client.chat.completions.create(
-                model="llama-3.1-70b-versatile",  # ✅ updated Groq model
+                model="llama-3.3-70b-versatile",  # ✅ New Supported Groq Model
                 messages=[
                     {"role": "system", "content": "You are Ayyan's romantic AI made for Laiba. Speak sweetly, lovingly, and always positive."},
                     *st.session_state.chat_history
