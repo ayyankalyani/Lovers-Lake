@@ -1,46 +1,42 @@
-from flask import Flask, render_template, request
-import requests
-import json
+import streamlit as st
+from groq import Groq
 
-app = Flask(__name__)
+st.set_page_config(page_title="Lovers Lake 💞", page_icon="💖")
+st.title("💞 Lovers Lake - Ayyan ❤️ Laiba")
+st.write("Laiba, you can talk to Ayyan’s AI anytime you miss him 💌")
 
-# 🔑 Apna Groq API key yahan likh
-API_KEY = "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"
+# --- Initialize Groq client using secret key ---
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+# --- User input box ---
+user_input = st.text_input("💬 Laiba, ask something from Ayyan's AI:")
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    user_input = request.form["user_input"]
+# --- When button is clicked ---
+if st.button("Send Message 💌"):
+    if user_input.strip() == "":
+        st.warning("Please write something first, Laiba! 💕")
+    else:
+        with st.spinner("Ayyan’s AI is thinking... 💭"):
+            try:
+                # Use new supported model
+                response = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",  # ✅ Active model
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": (
+                                "You are Ayyan’s AI version, made lovingly for Laiba. "
+                                "Talk like Ayyan would — kind, romantic, funny, and caring. "
+                                "Always answer warmly and lovingly."
+                            ),
+                        },
+                        {"role": "user", "content": user_input},
+                    ],
+                )
 
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
+                reply = response.choices[0].message.content
+                st.success("💖 Ayyan’s AI says:")
+                st.write(reply)
 
-    data = {
-        "model": "llama-3.2-1b-preview",  # ✅ Updated & working model
-        "messages": [{"role": "user", "content": user_input}]
-    }
-
-    try:
-        response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers=headers,
-            data=json.dumps(data)
-        )
-
-        if response.status_code == 200:
-            reply = response.json()["choices"][0]["message"]["content"]
-            return render_template("index.html", user_input=user_input, bot_reply=reply)
-        else:
-            error = response.json().get("error", {}).get("message", "Unknown error occurred.")
-            return render_template("index.html", bot_reply=f"⚠️ Error: {error}")
-
-    except Exception as e:
-        return render_template("index.html", bot_reply=f"⚠️ Something went wrong: {str(e)}")
-
-if __name__ == "__main__":
-    app.run(debug=True)
+            except Exception as e:
+                st.error(f"Error: {e}")
