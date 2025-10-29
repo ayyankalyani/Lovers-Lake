@@ -1,106 +1,97 @@
 import streamlit as st
 from groq import Groq
 
-# --------------------- PAGE CONFIG ---------------------
-st.set_page_config(page_title="Lovers Lake 💞", page_icon="💌", layout="centered")
+# ========== CONFIGURATION ==========
+st.set_page_config(
+    page_title="💞 Lovers Lake",
+    page_icon="💌",
+    layout="centered"
+)
 
-# --------------------- CUSTOM CSS ---------------------
+# ========== YOUR API KEY ==========
+API_KEY = "YOUR_GROQ_API_KEY"  # 👈 Replace with your actual Groq API key (e.g. gsk_xxxxx)
+
+client = Groq(api_key=API_KEY)
+
+# ========== CUSTOM PAGE STYLING ==========
 st.markdown("""
     <style>
         body {
-            background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+            background: linear-gradient(135deg, #f9c5d1 0%, #9795ef 100%);
+            font-family: 'Poppins', sans-serif;
         }
         .main {
-            background-color: rgba(255, 255, 255, 0.88);
+            background-color: rgba(255, 255, 255, 0.85);
             border-radius: 20px;
-            padding: 30px;
+            padding: 25px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #ff5e78;
-            text-align: center;
-            font-family: 'Comic Sans MS', cursive;
-        }
-        .stButton > button {
-            background-color: #ff85a1;
+        .stButton>button {
+            background-color: #ff8fab;
             color: white;
-            border-radius: 20px;
             border: none;
-            font-size: 16px;
+            border-radius: 12px;
             padding: 10px 25px;
-            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.3s;
         }
-        .stButton > button:hover {
-            background-color: #ff5e78;
+        .stButton>button:hover {
+            background-color: #ff648c;
             transform: scale(1.05);
         }
         .chat-bubble {
+            background-color: #ffe6eb;
             padding: 10px 15px;
             border-radius: 15px;
-            margin-bottom: 10px;
-            display: inline-block;
-            max-width: 80%;
+            margin: 5px 0;
         }
-        .user-msg {
-            background-color: #ffb6c1;
-            color: #fff;
-            align-self: flex-end;
-            text-align: right;
-        }
-        .bot-msg {
-            background-color: #fce4ec;
-            color: #444;
-            text-align: left;
+        .bot-bubble {
+            background-color: #e0e7ff;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin: 5px 0;
         }
     </style>
 """, unsafe_allow_html=True)
 
-# --------------------- API SETUP ---------------------
-API_KEY = "YOUR_GROQ_API_KEY"  # 👈 apna Groq API key yahan daalo
-client = Groq(api_key=API_KEY)
+# ========== APP TITLE ==========
+st.title("💞 Lovers Lake")
+st.write("Welcome to *Lovers Lake*, where Ayyan and Laiba can talk anytime, anywhere 🌸")
 
-# --------------------- APP HEADER ---------------------
-st.title("💞 Lovers Lake 💞")
-st.caption("Where your heart talks and words bloom 🌸")
+# ========== SESSION STATE FOR CHAT HISTORY ==========
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
-# --------------------- SESSION STATE (chat history) ---------------------
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# ========== USER INPUT ==========
+user_input = st.text_input("💌 Laiba, ask anything from Ayyan's AI:")
 
-# --------------------- CHAT DISPLAY ---------------------
-for msg in st.session_state.messages:
-    if msg["role"] == "user":
-        st.markdown(f"<div class='chat-bubble user-msg'>{msg['content']}</div>", unsafe_allow_html=True)
-    else:
-        st.markdown(f"<div class='chat-bubble bot-msg'>{msg['content']}</div>", unsafe_allow_html=True)
-
-# --------------------- USER INPUT ---------------------
-user_input = st.text_input("💌 Type your message here...", key="input")
-
-# --------------------- SEND BUTTON ---------------------
-if st.button("💖 Send"):
+# ========== SEND BUTTON ==========
+if st.button("💖 Send Message"):
     if user_input.strip() != "":
         # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": user_input})
+        st.session_state.chat_history.append({"role": "user", "content": user_input})
 
-        # Send request to Groq model
         try:
+            # Call Groq API
             response = client.chat.completions.create(
-                model="llama-3.1-70b-versatile",  # Recommended Groq model
+                model="llama-3.1-70b-versatile",  # ✅ updated Groq model
                 messages=[
-                    {"role": "system", "content": "You are a romantic and caring AI called Lovers Lake."},
-                    *st.session_state.messages
+                    {"role": "system", "content": "You are Ayyan's romantic AI made for Laiba. Speak sweetly, lovingly, and always positive."},
+                    *st.session_state.chat_history
                 ]
             )
-            reply = response.choices[0].message.content
-            st.session_state.messages.append({"role": "assistant", "content": reply})
 
-            # Rerun to show updated chat
-            st.rerun()
+            bot_reply = response.choices[0].message.content
+            st.session_state.chat_history.append({"role": "assistant", "content": bot_reply})
+
         except Exception as e:
-            st.error(f"💔 Error: {e}")
+            st.error(f"⚠️ Something went wrong: {e}")
 
-# --------------------- CLEAR CHAT BUTTON ---------------------
-if st.button("🧹 Clear Chat"):
-    st.session_state.messages = []
-    st.success("Chat cleared 💨")
+# ========== DISPLAY CHAT HISTORY ==========
+st.markdown("### 💬 Chat History")
+for chat in st.session_state.chat_history:
+    if chat["role"] == "user":
+        st.markdown(f"<div class='chat-bubble'><b>Laiba:</b> {chat['content']}</div>", unsafe_allow_html=True)
+    else:
+        st.markdown(f"<div class='bot-bubble'><b>Ayyan's AI:</b> {chat['content']}</div>", unsafe_allow_html=True)
