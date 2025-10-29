@@ -9,7 +9,7 @@ st.set_page_config(
 )
 
 # ========== YOUR API KEY ==========
-API_KEY = "YOUR_GROQ_API_KEY"  # 👈 Replace with your actual Groq API key (e.g. gsk_xxxxx)
+API_KEY = "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"  # 👈 Replace with your actual Groq API key (e.g. gsk_xxxxx)
 
 client = Groq(api_key=API_KEY)
 
